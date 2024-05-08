@@ -1,0 +1,95 @@
+defaults:
+  - _self_
+
+experiment: ??? # tag for wandb and log dir
+
+hydra:
+  run:
+    dir: ./results/track_transformer/${now:%m%d}_${experiment}_${now:%H%M}
+  sweep:
+    dir: ./results/track_transformer/${now:%m%d}_${experiment}_${now:%H%M}
+    subdir: ${hydra.job.num}
+
+wandb:
+  project: atm_libero
+  name: ${now:%m%d}_${experiment}_${now:%H%M}_${hydra:job.num}
+  group: ${experiment}
+
+train_gpus: [0]
+
+# Training
+lr: 1e-4
+batch_size: 512
+mix_precision: true
+num_workers: 8
+val_freq: 5
+save_freq: 10
+clip_grad: 10.
+epochs: 1001
+seed: 0
+dry: false
+
+model_name: TrackTransformer
+p_img: 0.5
+lbd_track: 10.0
+lbd_img: 1.0
+
+dim: 384
+dim_head: null
+heads: 8
+depth: 8
+
+img_size: 128
+frame_stack: 1
+num_track_ts: 16
+num_track_ids: 32
+patch_size: 16
+track_patch_size: 4
+
+aug_prob: 0.9
+
+train_dataset: ???
+val_dataset: ???
+
+optimizer_cfg:
+  type: optim.Adam
+  params:
+    lr: ${lr}
+    weight_decay: 0
+
+scheduler_cfg:
+  type: CosineAnnealingLRWithWarmup
+  params:
+    warmup_lr: 1e-5
+    warmup_epoch: 5
+    T_max: ${epochs}
+
+model_cfg:
+  transformer_cfg:
+    dim: ${dim}
+    dim_head: ${dim_head}
+    heads: ${heads}
+    depth: ${depth}
+    attn_dropout: 0.2
+    ff_dropout: 0.2
+  track_cfg:
+    num_track_ts: ${num_track_ts}
+    num_track_ids: ${num_track_ids}
+    patch_size: ${track_patch_size}
+  vid_cfg:
+    img_size: ${img_size}
+    frame_stack: ${frame_stack}
+    patch_size: ${patch_size}
+  language_encoder_cfg:
+    network_name: MLPEncoder
+    input_size: 768
+    hidden_size: 128
+    num_layers: 1
+
+dataset_cfg:
+  img_size: ${img_size}
+  frame_stack: ${frame_stack}
+  num_track_ts: ${num_track_ts}
+  num_track_ids: ${num_track_ids}
+  cache_all: true
+  cache_image: false

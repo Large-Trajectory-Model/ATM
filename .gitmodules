@@ -1,0 +1,6 @@
+[submodule "third_party/robosuite"]
+	path = third_party/robosuite
+	url = https://github.com/ARISE-Initiative/robosuite.git
+[submodule "third_party/robomimic"]
+	path = third_party/robomimic
+	url = https://github.com/ARISE-Initiative/robomimic.git

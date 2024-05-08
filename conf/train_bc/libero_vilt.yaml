@@ -1,0 +1,128 @@
+defaults:
+  - _self_
+
+experiment: ??? # tag for wandb and log dir
+
+hydra:
+  run:
+    dir: ./results/policy/${now:%m%d}_${experiment}_${now:%H%M}_seed${seed}
+  sweep:
+    dir: ./results/policy/${now:%m%d}_${experiment}_${now:%H%M}_seed${seed}
+    subdir: ${hydra.job.num}
+
+wandb:
+  project: atm_policy
+  name: ${now:%m%d}_${experiment}_${now:%H%M}_seed${seed}_${hydra:job.num}
+  group: ${experiment}
+
+train_gpus: [0]
+
+# Training
+lr: 5e-4
+batch_size: 128
+mix_precision: false
+num_workers: 8
+val_freq: 5
+save_freq: 10
+clip_grad: 100.
+epochs: 101
+seed: 0
+dry: false
+
+img_size: 128
+frame_stack: 10
+num_track_ts: 16
+num_track_ids: 32
+extra_state_keys: ["joint_states", "gripper_states"]
+
+aug_prob: 0.9
+
+train_dataset: ???
+val_dataset: ???
+val_num_demos: null
+
+env_cfg:
+  env_type: libero
+  render_gpu_ids: 0
+  vec_env_num: 10
+  horizon: 600
+  env_name: []
+  task_name: []
+  env_meta_fn: []
+
+optimizer_cfg:
+  type: optim.AdamW
+  params:
+    lr: ${lr}
+    weight_decay: 1e-4
+
+scheduler_cfg:
+  type: CosineAnnealingLR
+  params:
+    T_max: ${epochs}
+    eta_min: 0.
+    last_epoch: -1
+
+model_name: BCViLTPolicy
+model_cfg:
+  load_path: null
+  obs_cfg:
+    obs_shapes:
+      rgb: [3, 128, 128]
+      tracks: [16, 32, 2]
+    img_mean: [ 0., 0., 0. ]
+    img_std: [ 1.0, 1.0, 1.0 ]
+    num_views: 2
+    extra_states: ${extra_state_keys}
+    max_seq_len: ${frame_stack}
+  img_encoder_cfg:
+    network_name: PatchEncoder
+    patch_size: [8, 8]
+    embed_size: 128
+    no_patch_embed_bias: false
+  language_encoder_cfg:
+    network_name: MLPEncoder
+    input_size: 768
+    hidden_size: 128
+    num_layers: 1
+  extra_state_encoder_cfg:
+    extra_num_layers: 0
+    extra_hidden_size: 128
+  track_cfg:
+    track_fn: ???
+    policy_track_patch_size: 16
+    use_zero_track: false
+  spatial_transformer_cfg:
+    num_layers: 7
+    num_heads: 8
+    head_output_size: 120
+    mlp_hidden_size: 256
+    dropout: 0.1
+    spatial_downsample: true
+    spatial_downsample_embed_size: 64
+    use_language_token: false
+  temporal_transformer_cfg:
+    num_layers: 4
+    num_heads: 6
+    head_output_size: 64
+    mlp_hidden_size: 256
+    dropout: 0.1
+    use_language_token: false
+  policy_head_cfg:
+    network_name: DeterministicHead
+    output_size: [7,]
+    hidden_size: 1024
+    num_layers: 2
+    loss_coef: 1.0
+    action_squash: false
+
+dataset_cfg:
+  img_size: ${img_size}
+  frame_stack: ${frame_stack}
+  num_track_ts: ${num_track_ts}
+  num_track_ids: ${num_track_ids}
+  track_obs_fs: 1
+  augment_track: false
+  extra_state_keys: ${extra_state_keys}
+  cache_all: true
+  cache_image: true
