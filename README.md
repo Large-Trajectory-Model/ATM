@@ -10,14 +10,16 @@
 
 [paper](https://arxiv.org/abs/2401.00025) | [website](https://xingyu-lin.github.io/atm/)
 
-![image](https://github.com/Large-Trajectory-Model/any-point-trajectory-modeling/blob/main/doc/pull_figure.gif)
+**Robotics: Science and Systems (RSS) 2024**
+
+![image](https://github.com/Large-Trajectory-Model/ATM/blob/main/doc/pull_figure.gif)
 
 ## Installation
 
 ```
-git clone --recursive https://github.com/AlvinWen428/any-point-trajectory-modeling.git
+git clone --recursive https://github.com/Large-Trajectory-Model/ATM.git
 
-cd any-point-trajectory-modeling/
+cd ATM/
 conda env create -f environment.yml
 conda activate atm
 
@@ -56,7 +58,7 @@ rm atm_release_checkpoints.zip
 
 ## Training
 
-As shown in Figure 2 in our paper, the training of our Any-point Trajectory Modeling framework includes two stages: **Track Transformer Pretraining** and **Trajectory-guided Policy Training**.
+As shown in Figure 2 in our paper, the training of our  Trajectory Modeling framework includes two stages: **Track Transformer Pretraining** and **Trajectory-guided Policy Training**.
 
 ### Stage 1: Track Transformer Pretraining
 
