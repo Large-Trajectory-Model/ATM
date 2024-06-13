@@ -138,9 +138,13 @@ def make_libero_env(task_suite_name, task_name, img_h, img_w, task_embedding=Non
     assert len(init_states) % vec_env_num == 0, "error: the number of initial states must be divisible by the number of envs"
     num_states_per_env = len(init_states) // vec_env_num
     def env_func(env_idx):
+        print('checkpoint 0')
         base_env = OffScreenRenderEnv(**env_args)
+        print('checkpoint 1')
         base_env = LiberoResetWrapper(base_env, init_states=init_states[env_idx*num_states_per_env:(env_idx+1)*num_states_per_env])
+        print('checkpoint 2')
         base_env = LiberoTaskEmbWrapper(base_env, task_emb=task_suite.get_task_emb(task_id))
+        print('checkpoint 3')
         base_env.seed(seed)
         return base_env
 
@@ -155,6 +159,7 @@ def make_libero_env(task_suite_name, task_name, img_h, img_w, task_embedding=Non
                 env = StackSubprocVectorEnv([partial(env_func, env_idx=i) for i in range(vec_env_num)])
             env_created = True
         except:
+            print("trying again")
             time.sleep(5)
             count += 1
     if count >= 5:

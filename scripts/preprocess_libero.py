@@ -1,6 +1,7 @@
 import json
 import os
 from glob import glob
+import gc
 
 import click
 import h5py
@@ -187,6 +188,8 @@ def collect_states_from_demo(h5_file, image_save_dir, demos_group, demo_k, view_
         # save image pngs
         save_images(rearrange(rgb, "t c h w -> t h w c"), image_save_dir, view)
 
+        gc.collect()
+        torch.cuda.empty_cache()
 
 def save_images(video, image_dir, view_name):
     os.makedirs(image_dir, exist_ok=True)
@@ -249,9 +252,17 @@ def generate_data(source_h5_path, target_dir, track_model, task_emb, skip_exist)
                 h5_file_handle.close()
                 exit()
 
+            gc.collect()
+            torch.cuda.empty_cache()
+            # except Exception as e:
+            #     print(f"Exception {e} when processing {demo_k}")
+            #     gc.collect()
+            #     torch.cuda.empty_cache()
+            #     print("attempting again")
+            #     continue
 
 @click.command()
-@click.option("--root", type=str, default="./data/libero/")
+@click.option("--root", type=str, default="./data/")
 @click.option("--save", type=str, default="./data/atm_libero/")
 @click.option("--suite", type=str, default="libero_spatial")
 @click.option("--skip_exist", type=bool, default=False)
@@ -280,6 +291,8 @@ def main(root, save, suite, skip_exist):
         os.makedirs(save_dir, exist_ok=True)
         generate_data(source_h5_path, save_dir, cotracker, task_bert_embs_dict[task_name], skip_exist)
 
+        gc.collect()
+        torch.cuda.empty_cache()
 
 if __name__ == "__main__":
     main()

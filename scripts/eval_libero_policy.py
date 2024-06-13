@@ -13,8 +13,8 @@ parser.add_argument("--exp-dir", required=True, help="The path to the folder of 
 args = parser.parse_args()
 
 # evaluation configs
-train_gpu_ids = [0, 1, 2, 3]
-env_gpu_ids = [4, 5, 6, 7]
+train_gpu_ids = [0]
+env_gpu_ids = [0]
 
 root_dir = "./data/atm_libero"
 suite_name = args.suite
@@ -27,7 +27,7 @@ task_name_list = [task_dir.replace('_demo', '') for task_dir in task_dir_list]
 env_meta_path_list = [f"{root_dir}/{suite_name}/{task_dir}/env_meta.json" for task_dir in task_dir_list]
 
 exp_dir = args.exp_dir
-command = (f'python -m engine.eval_mv_bc --config-dir={exp_dir} --config-name=config hydra.run.dir=/tmp '
+command = (f'python -m engine.eval_mv_bc --config-dir={exp_dir} --config-name=config hydra.run.dir=/home/lawrence/ '
             f'+save_path={exp_dir} '
             f'train_gpus="{train_gpu_ids}" '
             f'env_cfg.env_name="{suite_name_list}" env_cfg.task_name="{task_name_list}" env_cfg.env_meta_fn="{env_meta_path_list}" '
