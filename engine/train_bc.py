@@ -42,11 +42,11 @@ def main(cfg: DictConfig):
                                               num_workers=1,
                                               batch_size=1)
 
-    val_dataset = BCDataset(dataset_dir=cfg.val_dataset, num_demos=cfg.val_num_demos, **cfg.dataset_cfg, aug_prob=0.)
-    val_loader = get_dataloader(val_dataset, mode="val", num_workers=cfg.num_workers, batch_size=cfg.batch_size)
+    # val_dataset = BCDataset(dataset_dir=cfg.val_dataset, num_demos=cfg.val_num_demos, **cfg.dataset_cfg, aug_prob=0.)
+    # val_loader = get_dataloader(val_dataset, mode="val", num_workers=cfg.num_workers, batch_size=cfg.batch_size)
 
-    val_vis_dataset = BCDataset(dataset_dir=cfg.val_dataset, num_demos=cfg.val_num_demos, vis=True, **cfg.dataset_cfg, aug_prob=0.)
-    val_vis_dataloader = get_dataloader(val_vis_dataset, mode="train", num_workers=1, batch_size=1)
+    # val_vis_dataset = BCDataset(dataset_dir=cfg.val_dataset, num_demos=cfg.val_num_demos, vis=True, **cfg.dataset_cfg, aug_prob=0.)
+    # val_vis_dataloader = get_dataloader(val_vis_dataset, mode="train", num_workers=1, batch_size=1)
 
     fabric = Fabric(accelerator="cuda", devices=list(cfg.train_gpus), precision="bf16-mixed" if cfg.mix_precision else None, strategy="deepspeed")
     fabric.launch()
@@ -88,30 +88,30 @@ def main(cfg: DictConfig):
         train_metrics["train/lr"] = optimizer.param_groups[0]["lr"]
         metric_logger.update(**train_metrics)
 
-        if fabric.is_global_zero:
-            None if cfg.dry else wandb.log(train_metrics, step=epoch)
+        # if fabric.is_global_zero:
+        #     None if cfg.dry else wandb.log(train_metrics, step=epoch)
 
-            if epoch % cfg.val_freq == 0:
-                val_metrics = evaluate(model,
-                                          val_loader,
-                                          mix_precision=cfg.mix_precision,
-                                          tag="val")
+        #     if epoch % cfg.val_freq == 0:
+        #         val_metrics = evaluate(model,
+        #                                   val_loader,
+        #                                   mix_precision=cfg.mix_precision,
+        #                                   tag="val")
 
-                # Save best checkpoint
-                metric_logger.update(**val_metrics)
+        #         # Save best checkpoint
+        #         metric_logger.update(**val_metrics)
 
-                val_metrics = {**val_metrics}
-                loss_metric = val_metrics["val/loss"]
-                is_best = best_loss_logger.update_best(loss_metric, epoch)
+        #         val_metrics = {**val_metrics}
+        #         loss_metric = val_metrics["val/loss"]
+        #         is_best = best_loss_logger.update_best(loss_metric, epoch)
 
-                if is_best:
-                    model.save(f"{work_dir}/model_best.ckpt")
-                    with open(f"{work_dir}/best_epoch.txt", "w") as f:
-                        f.write(
-                            "Best epoch: %d, Best %s: %.4f"
-                            % (epoch, "loss", best_loss_logger.best_loss)
-                        )
-                None if cfg.dry else wandb.log(val_metrics, step=epoch)
+        #         if is_best:
+        #             model.save(f"{work_dir}/model_best.ckpt")
+        #             with open(f"{work_dir}/best_epoch.txt", "w") as f:
+        #                 f.write(
+        #                     "Best epoch: %d, Best %s: %.4f"
+        #                     % (epoch, "loss", best_loss_logger.best_loss)
+        #                 )
+        #         None if cfg.dry else wandb.log(val_metrics, step=epoch)
 
         if epoch % cfg.save_freq == 0:
             model.save(f"{work_dir}/model_{epoch}.ckpt")
@@ -128,7 +128,7 @@ def main(cfg: DictConfig):
 
             if fabric.is_global_zero and hasattr(model, "forward_vis"):
                 vis_and_log(model, train_vis_dataloader, mode="train")
-                vis_and_log(model, val_vis_dataloader, mode="val")
+                # vis_and_log(model, val_vis_dataloader, mode="val")
 
             gathered_results = [{} for _ in range(fabric.world_size)]
             results = rollout(rollout_env, model, 20 // cfg.env_cfg.vec_env_num, horizon=rollout_horizon)

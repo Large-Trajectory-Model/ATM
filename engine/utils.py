@@ -151,6 +151,7 @@ def rollout(env_dict, policy, num_env_rollouts, horizon=None, return_wandb_video
         for k, v in env_additional_metrics[idx].items():
             results[f"rollout/{k}_env{env_idx}"] = np.mean(v)
 
+    breakpoint()
     return results
 
 

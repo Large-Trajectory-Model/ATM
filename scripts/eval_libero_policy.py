@@ -13,8 +13,8 @@ parser.add_argument("--exp-dir", required=True, help="The path to the folder of 
 args = parser.parse_args()
 
 # evaluation configs
-train_gpu_ids = [0, 1, 2, 3]
-env_gpu_ids = [4, 5, 6, 7]
+train_gpu_ids = [0]
+env_gpu_ids = [0]
 
 root_dir = "./data/atm_libero"
 suite_name = args.suite

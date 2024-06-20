@@ -175,6 +175,10 @@ def main(cfg: DictConfig):
 
     summary_file_path = os.path.join(eval_result_dir, f"summary_{suite_name}.csv")
     ckp_paths_to_eval = get_ckp_list(save_path, summary_file_path, reverse=True)
+    print(ckp_paths_to_eval)
+    # only evaluate last checkpoint
+    ckp_paths_to_eval = ckp_paths_to_eval[:1]
+    print(ckp_paths_to_eval)
 
     setup(cfg)
 
