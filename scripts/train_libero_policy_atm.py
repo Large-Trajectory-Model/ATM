@@ -23,7 +23,7 @@ args = parser.parse_args()
 # training configs
 CONFIG_NAME = "libero_vilt"
 
-train_gpu_ids = [0,1]
+train_gpu_ids = [0]
 NUM_DEMOS = 10
 
 root_dir = "./data/atm_libero/"

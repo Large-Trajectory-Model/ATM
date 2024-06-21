@@ -74,7 +74,8 @@ def get_ckp_list(exp_dir, summary_path, reverse=False):
 
     ckp_to_eval = []
     for epoch, path in zip(all_epochs, all_ckp_path_list):
-        if epoch not in evaluated_epochs:
+        if True:
+        # if epoch not in evaluated_epochs:
             ckp_to_eval.append(path)
 
     return ckp_to_eval

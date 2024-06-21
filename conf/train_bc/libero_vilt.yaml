@@ -32,7 +32,7 @@ dry: false
 img_size: 128
 frame_stack: 10
 num_track_ts: 16
-num_track_ids: 16
+num_track_ids: 32
 extra_state_keys: ["joint_states", "gripper_states"]
 
 aug_prob: 0.9

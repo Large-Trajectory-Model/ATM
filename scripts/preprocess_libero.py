@@ -290,6 +290,8 @@ def main(root, save, suite, skip_exist):
     task_bert_embs_dict = get_task_bert_embs(root)
 
     for source_h5 in os.listdir(suite_dir):
+        if not source_h5.endswith('.hdf5'):
+            continue
         source_h5_path = os.path.join(suite_dir, source_h5)
         file_name = source_h5.split('.')[0]
         task_name = get_task_name_from_file_name(file_name)
