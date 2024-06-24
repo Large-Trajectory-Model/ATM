@@ -114,6 +114,7 @@ class BCViLTPolicy(nn.Module):
             param.requires_grad = False
 
         self.num_track_ids = self.track.num_track_ids
+        # breakpoint()
         self.num_track_ts = self.track.num_track_ts
         self.policy_track_patch_size = self.track.track_patch_size if policy_track_patch_size is None else policy_track_patch_size
 
@@ -200,6 +201,7 @@ class BCViLTPolicy(nn.Module):
         self.register_parameter("action_cls_token", action_cls_token)
 
     def _setup_policy_head(self, network_name, **policy_head_kwargs):
+        # breakpoint()
         policy_head_kwargs["input_size"] \
             = self.temporal_embed_size + self.num_views * self.policy_num_track_ts * self.policy_num_track_ids * 2
 
@@ -244,7 +246,7 @@ class BCViLTPolicy(nn.Module):
             task_emb: b e
         Returns: b v t track_len n 2
         """
-        assert self.num_track_ids == 32
+        # assert self.num_track_ids == 32
         b, v, t, *_ = track_obs.shape
 
         if self.use_zero_track:
@@ -252,7 +254,8 @@ class BCViLTPolicy(nn.Module):
         else:
             track_obs_to_pred = rearrange(track_obs, "b v t fs c h w -> (b v t) fs c h w")
 
-            grid_points = sample_double_grid(4, device=track_obs.device, dtype=track_obs.dtype)
+            n = int(np.sqrt(self.num_track_ids))
+            grid_points = sample_double_grid(n, device=track_obs.device, dtype=track_obs.dtype)
             grid_sampled_track = repeat(grid_points, "n d -> b v t tl n d", b=b, v=v, t=t, tl=self.num_track_ts)
             grid_sampled_track = rearrange(grid_sampled_track, "b v t tl n d -> (b v t) tl n d")
 
@@ -386,6 +389,7 @@ class BCViLTPolicy(nn.Module):
         recon_track = rearrange(recon_track, "b v t tl n d -> b t (v tl n d)")
         x = torch.cat([x, recon_track], dim=-1)  # (b, t, c + v*tl*n*2)
 
+        # breakpoint()
         dist = self.policy_head(x)  # only use the current timestep feature to predict action
         return dist
 

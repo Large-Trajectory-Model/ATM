@@ -87,6 +87,8 @@ def main(cfg: DictConfig):
 
         train_metrics["train/lr"] = optimizer.param_groups[0]["lr"]
         metric_logger.update(**train_metrics)
+        if not cfg.dry:
+            wandb.log(train_metrics, step=epoch)
 
         # if fabric.is_global_zero:
         #     None if cfg.dry else wandb.log(train_metrics, step=epoch)
@@ -126,9 +128,9 @@ def main(cfg: DictConfig):
                                                 f"{mode}/rollout_track": wandb_vid_rollout},
                                                 step=epoch)
 
-            if fabric.is_global_zero and hasattr(model, "forward_vis"):
-                vis_and_log(model, train_vis_dataloader, mode="train")
-                # vis_and_log(model, val_vis_dataloader, mode="val")
+            # if fabric.is_global_zero and hasattr(model, "forward_vis"):
+            #     vis_and_log(model, train_vis_dataloader, mode="train")
+            #     # vis_and_log(model, val_vis_dataloader, mode="val")
 
             gathered_results = [{} for _ in range(fabric.world_size)]
             results = rollout(rollout_env, model, 20 // cfg.env_cfg.vec_env_num, horizon=rollout_horizon)

@@ -19,6 +19,7 @@ class DeterministicHead(nn.Module):
 
         super().__init__()
         self.action_squash = action_squash
+        # breakpoint()
         sizes = [input_size] + [hidden_size] * num_layers + [output_size]
         layers = []
         for i in range(num_layers):

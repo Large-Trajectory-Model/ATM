@@ -121,6 +121,7 @@ def evaluate(fabric, cfg, checkpoint, video_save_dir, num_env_rollouts=20, rende
     env_idx_end = min(env_num_each_rank * (fabric.global_rank + 1), len(cfg.env_cfg.env_name))
 
     all_results = []
+    print(f"evaluating ckp {checkpoint} on envs {env_idx_start} to {env_idx_end} in ({env_idx_start}, {env_idx_end})")
     for env_idx in range(env_idx_start, env_idx_end):
         print(f"evaluating ckp {checkpoint} on env {env_idx} in ({env_idx_start}, {env_idx_end})")
         env = build_env(img_size=(render_image_size or cfg.img_size), env_idx_start_end=(env_idx, env_idx+1), **cfg.env_cfg)

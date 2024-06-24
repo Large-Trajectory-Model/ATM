@@ -64,7 +64,6 @@ class BaseDataset(Dataset):
             fn_list = natsorted(fn_list)
             if self.num_demos is None:
                 n_demo = len(fn_list)
-                n_demo = 10
             else:
                 assert 0 < self.num_demos <= 1, "num_demos means the ratio of training data among all the demos."
                 n_demo = int(len(fn_list) * self.num_demos)

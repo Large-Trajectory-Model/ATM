@@ -262,6 +262,7 @@ class TrackTransformer(nn.Module):
         vid = self._preprocess_vid(vid)
 
         rec_track, rec_patches = self.forward(vid, track, task_emb, p_img)
+        breakpoint()
         track_loss = F.mse_loss(rec_track, track)
         img_loss = F.mse_loss(rec_patches, self._patchify(vid))
         loss = track_loss + img_loss
