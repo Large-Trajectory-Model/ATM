@@ -27,7 +27,7 @@ task_name_list = [task_dir.replace('_demo', '') for task_dir in task_dir_list]
 env_meta_path_list = [f"{root_dir}/{suite_name}/{task_dir}/env_meta.json" for task_dir in task_dir_list]
 
 exp_dir = args.exp_dir
-command = (f'python -m engine.eval_mv_bc --config-dir={exp_dir} --config-name=config hydra.run.dir=/home/lawrence/ '
+command = (f'python -m engine.eval_mv_bc --config-dir={exp_dir} --config-name=config hydra.run.dir=/tmp '
             f'+save_path={exp_dir} '
             f'train_gpus="{train_gpu_ids}" '
             f'env_cfg.env_name="{suite_name_list}" env_cfg.task_name="{task_name_list}" env_cfg.env_meta_fn="{env_meta_path_list}" '

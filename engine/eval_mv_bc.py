@@ -123,7 +123,6 @@ def evaluate(fabric, cfg, checkpoint, video_save_dir, num_env_rollouts=20, rende
     for env_idx in range(env_idx_start, env_idx_end):
         print(f"evaluating ckp {checkpoint} on env {env_idx} in ({env_idx_start}, {env_idx_end})")
         env = build_env(img_size=(render_image_size or cfg.img_size), env_idx_start_end=(env_idx, env_idx+1), **cfg.env_cfg)
-        print("BUILT ENVIRONMENT")
         result = rollout(env, model, num_env_rollouts=num_env_rollouts // cfg.env_cfg.vec_env_num, horizon=rollout_horizon,
                          return_wandb_video=False,
                          success_vid_first=success_vid_first, fail_vid_first=fail_vid_first,
