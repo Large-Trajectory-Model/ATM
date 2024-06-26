@@ -114,6 +114,7 @@ class BCViLTPolicy(nn.Module):
             param.requires_grad = False
 
         self.num_track_ids = self.track.num_track_ids
+        # breakpoint()
         self.num_track_ts = self.track.num_track_ts
         self.policy_track_patch_size = self.track.track_patch_size if policy_track_patch_size is None else policy_track_patch_size
 
@@ -200,6 +201,7 @@ class BCViLTPolicy(nn.Module):
         self.register_parameter("action_cls_token", action_cls_token)
 
     def _setup_policy_head(self, network_name, **policy_head_kwargs):
+        # breakpoint()
         policy_head_kwargs["input_size"] \
             = self.temporal_embed_size + self.num_views * self.policy_num_track_ts * self.policy_num_track_ids * 2
 
@@ -244,7 +246,8 @@ class BCViLTPolicy(nn.Module):
             task_emb: b e
         Returns: b v t track_len n 2
         """
-        assert self.num_track_ids == 32
+        # assert self.num_track_ids == 32
+        # breakpoint()
         b, v, t, *_ = track_obs.shape
 
         if self.use_zero_track:
@@ -252,7 +255,8 @@ class BCViLTPolicy(nn.Module):
         else:
             track_obs_to_pred = rearrange(track_obs, "b v t fs c h w -> (b v t) fs c h w")
 
-            grid_points = sample_double_grid(4, device=track_obs.device, dtype=track_obs.dtype)
+            n = int(np.sqrt(self.num_track_ids))
+            grid_points = sample_double_grid(n, device=track_obs.device, dtype=track_obs.dtype)
             grid_sampled_track = repeat(grid_points, "n d -> b v t tl n d", b=b, v=v, t=t, tl=self.num_track_ts)
             grid_sampled_track = rearrange(grid_sampled_track, "b v t tl n d -> (b v t) tl n d")
 
@@ -283,19 +287,20 @@ class BCViLTPolicy(nn.Module):
             extra_states: {k: b t n}
         Returns: out: (b t 2+num_extra c), recon_track: (b v t tl n 2)
         """
+        # breakpoint()
         # 1. encode image
         img_encoded = []
-        for view_idx in range(self.num_views):
+        for view_idx in range(self.num_views): # wrist view and third-person view
             img_encoded.append(
                 rearrange(
                     TensorUtils.time_distributed(
-                        obs[:, view_idx, ...], self.image_encoders[view_idx]
+                        obs[:, view_idx, ...], self.image_encoders[view_idx] # apply corresponding image encoder to view
                     ),
                     "b t c h w -> b t (h w) c",
                 )
             )  # (b, t, num_patches, c)
 
-        img_encoded = torch.cat(img_encoded, -2)  # (b, t, 2*num_patches, c)
+        img_encoded = torch.cat(img_encoded, -2)  # (b, t, 2*num_patches, c) by concatenating the two views along the spatial axis
         img_encoded += self.img_patch_pos_embed.unsqueeze(0)  # (b, t, 2*num_patches, c)
         B, T = img_encoded.shape[:2]
 

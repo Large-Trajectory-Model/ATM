@@ -19,11 +19,11 @@ train_gpus: [0]
 
 # Training
 lr: 5e-4
-batch_size: 128
+batch_size: 20
 mix_precision: false
 num_workers: 8
 val_freq: 5
-save_freq: 10
+save_freq: 1
 clip_grad: 100.
 epochs: 101
 seed: 0
@@ -32,7 +32,7 @@ dry: false
 img_size: 128
 frame_stack: 10
 num_track_ts: 16
-num_track_ids: 32
+num_track_ids: 16
 extra_state_keys: ["joint_states", "gripper_states"]
 
 aug_prob: 0.9
@@ -69,7 +69,7 @@ model_cfg:
   obs_cfg:
     obs_shapes:
       rgb: [3, 128, 128]
-      tracks: [16, 32, 2]
+      tracks: [16, 16, 2]
     img_mean: [ 0., 0., 0. ]
     img_std: [ 1.0, 1.0, 1.0 ]
     num_views: 2

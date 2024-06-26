@@ -55,26 +55,46 @@ def sample_double_grid(n, device="cuda", dtype=torch.float32,):
     points = torch.cat([points1, points2], dim=0)
     return points
 
-
-def sample_tracks_nearest_to_grids(tracks, vis, num_samples):
+def sample_tracks_nearest_to_grids(tracks, vis, num_samples=16):  # Default set to 16
     """
     Sample the tracks whose first points are nearest to the grids
     Args:
-        tracks: (track_len n 2)
-        vis: (track_len n)
-        num_samples: number of tracks to sample
+        tracks: (track_len, n, 2)
+        vis: (track_len, n)
+        num_samples: number of tracks to sample, default is 16
     Returns:
-        (track_len num_samples 2)
+        (track_len, num_samples, 2)
     """
-    assert num_samples == 32
-    reference_grid_points = sample_double_grid(n=4, device="cpu")  # (32, 2)
+    # assert num_samples == 16  # Adjusted to 16
+    reference_grid_points = sample_double_grid(n=2, device="cpu")  # Adjusted to generate 16 points in total
 
     first_points = tracks[0]  # (n, 2)
-    dist = torch.norm(first_points[:, None, :] - reference_grid_points[None, :, :], dim=-1)  # (n, 32)
-    nearest_idx = torch.argmin(dist, dim=0)  # (32,)
-    nearest_tracks = tracks[:, nearest_idx, :]  # (track_len, 32, 2)
-    nearest_vis = vis[:, nearest_idx]  # (track_len, 32)
+    dist = torch.norm(first_points[:, None, :] - reference_grid_points[None, :, :], dim=-1)  # (n, 16)
+    nearest_idx = torch.argmin(dist, dim=0)  # (16,)
+    nearest_tracks = tracks[:, nearest_idx, :]  # (track_len, 16, 2)
+    nearest_vis = vis[:, nearest_idx]  # (track_len, 16)
     return nearest_tracks, nearest_vis
+# def sample_tracks_nearest_to_grids(tracks, vis, num_samples):
+#     """
+#     Sample the tracks whose first points are nearest to the grids
+#     Args:
+#         tracks: (track_len n 2)
+#         vis: (track_len n)
+#         num_samples: number of tracks to sample
+#     Returns:
+#         (track_len num_samples 2)
+#     """
+#     assert num_samples == 32
+#     reference_grid_points = sample_double_grid(n=4, device="cpu")  # (32, 2)
+
+#     # First point of each track (wrt. to time)
+#     first_points = tracks[0]  # (n, 2)
+
+#     dist = torch.norm(first_points[:, None, :] - reference_grid_points[None, :, :], dim=-1)  # (n, 32)
+#     nearest_idx = torch.argmin(dist, dim=0)  # (32,)
+#     nearest_tracks = tracks[:, nearest_idx, :]  # (track_len, 32, 2)
+#     nearest_vis = vis[:, nearest_idx]  # (track_len, 32)
+#     return nearest_tracks, nearest_vis
 
 
 def sample_tracks(tracks, num_samples=16, uniform_ratio=0.25, vis=None, motion=False, h=None):

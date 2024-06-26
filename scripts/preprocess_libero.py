@@ -92,6 +92,8 @@ def get_task_bert_embs(libero_root_dir):
 
 def track_and_remove(tracker, video, points, var_threshold=10.):
     B, T, C, H, W = video.shape
+    flush()
+    # CUDA OOM here
     pred_tracks, pred_vis = tracker(video, queries=points, backward_tracking=True) # [1, T, N, 2]
 
     var = torch.var(pred_tracks, dim=1)  # [1, N, 2]
@@ -115,11 +117,11 @@ def track_and_remove(tracker, video, points, var_threshold=10.):
 
     # Track new points
     pred_tracks, pred_vis = tracker(video, queries=new_points, backward_tracking=True)
-
     return pred_tracks, pred_vis
 
 
 def track_through_video(video, track_model, num_points=1000):
+    flush()
     T, C, H, W = video.shape
 
     video = torch.from_numpy(video).cuda().float()
@@ -140,6 +142,7 @@ def track_through_video(video, track_model, num_points=1000):
 
     pred_tracks = torch.cat([pred_grid_tracks, pred_tracks], dim=2)
     pred_vis = torch.cat([pred_grid_vis, pred_vis], dim=2)
+    flush()
     return pred_tracks, pred_vis
 
 
@@ -158,6 +161,7 @@ def collect_states_from_demo(h5_file, image_save_dir, demos_group, demo_k, view_
         root_grp.create_dataset("task_emb_bert", data=task_emb)
 
     for view in view_names:
+        flush()
         rgb = np.array(demos_group[demo_k]['obs'][f'{view}_rgb'])
         rgb = rgb[:, ::-1, :, :].copy()  # The images in the raw Libero dataset is upsidedown, so we need to flip it
         rgb = rearrange(rgb, "t h w c -> t c h w")
@@ -188,8 +192,7 @@ def collect_states_from_demo(h5_file, image_save_dir, demos_group, demo_k, view_
         # save image pngs
         save_images(rearrange(rgb, "t c h w -> t h w c"), image_save_dir, view)
 
-        gc.collect()
-        torch.cuda.empty_cache()
+        flush()
 
 def save_images(video, image_dir, view_name):
     os.makedirs(image_dir, exist_ok=True)
@@ -218,6 +221,7 @@ def get_attrs_and_view_names(demo_h5):
 
 
 def generate_data(source_h5_path, target_dir, track_model, task_emb, skip_exist):
+    flush()
     demos = h5py.File(source_h5_path, 'r')['data']
     demo_keys = natsorted(list(demos.keys()))
     attrs, views = get_attrs_and_view_names(demos)
@@ -235,6 +239,7 @@ def generate_data(source_h5_path, target_dir, track_model, task_emb, skip_exist)
     num_points = 1000
     with torch.no_grad():
         for idx in tqdm(range(len(demo_keys))):
+            flush()
             demo_k = demo_keys[idx]
             save_path = os.path.join(target_dir, f"{demo_k}.hdf5")
             h5_file_handle = inital_save_h5(save_path, skip_exist)
@@ -251,7 +256,14 @@ def generate_data(source_h5_path, target_dir, track_model, task_emb, skip_exist)
                 print(f"Exception {e} when processing {save_path}")
                 h5_file_handle.close()
                 exit()
+            
+            flush()
 
+def flush():
+    torch.cuda.empty_cache()
+    gc.collect()
+
+<<<<<<< HEAD
             gc.collect()
             torch.cuda.empty_cache()
             # except Exception as e:
@@ -260,6 +272,12 @@ def generate_data(source_h5_path, target_dir, track_model, task_emb, skip_exist)
             #     torch.cuda.empty_cache()
             #     print("attempting again")
             #     continue
+=======
+    # print(f"Memory Allocated: {torch.cuda.memory_allocated("cuda"") / 1024/1024} MB")
+    # print(f"Memory Reserved: {torch.cuda.memory_reserved("cuda") / 1024/1024} MB")
+    # print(f"Max Memory Allocated: {torch.cuda.max_memory_allocated("cuda") / 1024/1024} MB")
+    # print(f"Max Memory Reserved: {torch.cuda.max_memory_reserved("cuda") / 1024/1024} MB")
+>>>>>>> debug
 
 @click.command()
 @click.option("--root", type=str, default="./data/")
@@ -283,6 +301,8 @@ def main(root, save, suite, skip_exist):
     task_bert_embs_dict = get_task_bert_embs(root)
 
     for source_h5 in os.listdir(suite_dir):
+        if not source_h5.endswith('.hdf5'):
+            continue
         source_h5_path = os.path.join(suite_dir, source_h5)
         file_name = source_h5.split('.')[0]
         task_name = get_task_name_from_file_name(file_name)
@@ -290,6 +310,7 @@ def main(root, save, suite, skip_exist):
         save_dir = os.path.join(save, suite, file_name)
         os.makedirs(save_dir, exist_ok=True)
         generate_data(source_h5_path, save_dir, cotracker, task_bert_embs_dict[task_name], skip_exist)
+        flush()
 
         gc.collect()
         torch.cuda.empty_cache()

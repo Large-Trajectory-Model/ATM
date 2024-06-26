@@ -74,7 +74,8 @@ def get_ckp_list(exp_dir, summary_path, reverse=False):
 
     ckp_to_eval = []
     for epoch, path in zip(all_epochs, all_ckp_path_list):
-        if epoch not in evaluated_epochs:
+        if True:
+        # if epoch not in evaluated_epochs:
             ckp_to_eval.append(path)
 
     return ckp_to_eval
@@ -120,6 +121,7 @@ def evaluate(fabric, cfg, checkpoint, video_save_dir, num_env_rollouts=20, rende
     env_idx_end = min(env_num_each_rank * (fabric.global_rank + 1), len(cfg.env_cfg.env_name))
 
     all_results = []
+    print(f"evaluating ckp {checkpoint} on envs {env_idx_start} to {env_idx_end} in ({env_idx_start}, {env_idx_end})")
     for env_idx in range(env_idx_start, env_idx_end):
         print(f"evaluating ckp {checkpoint} on env {env_idx} in ({env_idx_start}, {env_idx_end})")
         env = build_env(img_size=(render_image_size or cfg.img_size), env_idx_start_end=(env_idx, env_idx+1), **cfg.env_cfg)
@@ -175,6 +177,10 @@ def main(cfg: DictConfig):
 
     summary_file_path = os.path.join(eval_result_dir, f"summary_{suite_name}.csv")
     ckp_paths_to_eval = get_ckp_list(save_path, summary_file_path, reverse=True)
+    print(ckp_paths_to_eval)
+    # only evaluate last checkpoint
+    ckp_paths_to_eval = ckp_paths_to_eval[:1]
+    print(ckp_paths_to_eval)
 
     setup(cfg)
 
