@@ -65,7 +65,7 @@ scheduler_cfg:
 
 model_name: BCViLTPolicy
 model_cfg:
-  load_path: /home/lawrence/ATM/results/policy/0623_atm-policy_libero-spatial_demo10_0004_seed0/model_27.ckpt
+  load_path: null
   obs_cfg:
     obs_shapes:
       rgb: [3, 128, 128]

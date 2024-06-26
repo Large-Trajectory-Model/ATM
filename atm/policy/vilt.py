@@ -247,6 +247,7 @@ class BCViLTPolicy(nn.Module):
         Returns: b v t track_len n 2
         """
         # assert self.num_track_ids == 32
+        # breakpoint()
         b, v, t, *_ = track_obs.shape
 
         if self.use_zero_track:
@@ -286,6 +287,7 @@ class BCViLTPolicy(nn.Module):
             extra_states: {k: b t n}
         Returns: out: (b t 2+num_extra c), recon_track: (b v t tl n 2)
         """
+        # breakpoint()
         # 1. encode image
         img_encoded = []
         for view_idx in range(self.num_views): # wrist view and third-person view
@@ -389,7 +391,6 @@ class BCViLTPolicy(nn.Module):
         recon_track = rearrange(recon_track, "b v t tl n d -> b t (v tl n d)")
         x = torch.cat([x, recon_track], dim=-1)  # (b, t, c + v*tl*n*2)
 
-        # breakpoint()
         dist = self.policy_head(x)  # only use the current timestep feature to predict action
         return dist
 

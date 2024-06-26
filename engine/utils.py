@@ -96,9 +96,6 @@ def rollout(env_dict, policy, num_env_rollouts, horizon=None, return_wandb_video
                     _track, _rec_track = _tracks
                     if connect_points_with_line:
                         base_track_img = draw_traj_on_images(_rec_track[:, 0], video_img[:, 0])  # (b, c, h, w)
-                        print("DEBUGGING")
-                        print(_rec_track.shape)
-                        print(base_track_img.shape)
                         wrist_track_img = draw_traj_on_images(_rec_track[:, 1], video_img[:, 1])
                         frame = np.concatenate([base_track_img, np.ones((b, c, h, 2), dtype=np.uint8)*255, wrist_track_img], axis=-1)  # (b, c, h, 2w)
                     else:
