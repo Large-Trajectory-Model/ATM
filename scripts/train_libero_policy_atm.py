@@ -33,7 +33,7 @@ task_dir_list.sort()
 
 # dataset
 train_path_list = [f"{root_dir}/{suite_name}/{task_dir}" for task_dir in task_dir_list]
-val_path_list = [f"{root_dir}/{suite_name}/{task_dir}/val" for task_dir in task_dir_list]
+val_path_list = ["./data/atm_libero/libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate_demo"]
 
 track_fn = args.track_transformer or DEFAULT_TRACK_TRANSFORMERS[suite_name]
 

@@ -27,8 +27,9 @@ if suite_name == "libero_100":
     val1_dataset_list = glob(os.path.join(root_dir, "libero_90/*/val/")) + glob(os.path.join(root_dir, "libero_10/*/val/"))
 else:
     EPOCH = 1001
-    train_dataset_list = glob(os.path.join(root_dir, f"{suite_name}/*/train/"))
-    val1_dataset_list = glob(os.path.join(root_dir, f"{suite_name}/*/val/"))
+    # train_dataset_list = glob(os.path.join(root_dir, f"{suite_name}"))
+    train_dataset_list = [f"{root_dir}/{suite_name}/{task_dir}" for task_dir in os.listdir(os.path.join(root_dir, suite_name))]
+    val1_dataset_list = [f"{root_dir}/{suite_name}/{task_dir}" for task_dir in os.listdir(os.path.join(root_dir, suite_name))]
 
 command = (f'python -m engine.train_track_transformer --config-name={CONFIG_NAME} '
            f'train_gpus="{gpu_ids}" '

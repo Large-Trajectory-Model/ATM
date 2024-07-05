@@ -182,7 +182,7 @@ class BaseDataset(Dataset):
 
         demo_length = self._demo_id_to_demo_length[demo_id]
         demo_path = self._demo_id_to_path[demo_id]
-        demo_parent_dir = os.path.dirname(os.path.dirname(demo_path))
+        demo_parent_dir = (os.path.dirname(demo_path))
         demo_name = os.path.basename(demo_path).split(".")[0]
         images_dir = os.path.join(demo_parent_dir, "images", demo_name)
 

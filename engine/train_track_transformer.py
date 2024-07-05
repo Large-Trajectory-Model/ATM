@@ -65,13 +65,15 @@ def main(cfg: DictConfig):
             scheduler=scheduler,
             mix_precision=cfg.mix_precision,
             clip_grad=cfg.clip_grad,
+            epoch=epoch
         )
 
         train_metrics["train/lr"] = optimizer.param_groups[0]["lr"]
         metric_logger.update(**train_metrics)
 
+        train_metrics["train/epoch"] = epoch
         if fabric.is_global_zero:
-            None if cfg.dry else wandb.log(train_metrics, step=epoch)
+            None if cfg.dry else wandb.log(train_metrics)
 
             if epoch % cfg.val_freq == 0:
                 val_metrics = evaluate(
@@ -98,7 +100,8 @@ def main(cfg: DictConfig):
                             "Best epoch: %d, Best %s: %.4f"
                             % (epoch, "loss", best_loss_logger.best_loss)
                         )
-                None if cfg.dry else wandb.log(val_metrics, step=epoch)
+                val_metrics["val/epoch"] = epoch
+                None if cfg.dry else wandb.log(val_metrics)
 
             if epoch % cfg.save_freq == 0:
                 model.save(f"{work_dir}/model_{epoch}.ckpt")
@@ -108,7 +111,7 @@ def main(cfg: DictConfig):
 
                     caption = f"reconstruction (right) @ epoch {epoch}; \n Track MSE: {vis_dict['track_loss']:.4f}"
                     wandb_vis_track = wandb.Video(vis_dict["combined_track_vid"], fps=10, format="mp4", caption=caption)
-                    None if cfg.dry else wandb.log({f"{mode}/reconstruct_track": wandb_vis_track}, step=epoch)
+                    None if cfg.dry else wandb.log({f"{mode}/reconstruct_track": wandb_vis_track, f"{mode}/epoch": epoch})
 
                 vis_and_log(model, train_vis_dataloader, mode="train")
                 vis_and_log(model, val_vis_dataloader, mode="val")
@@ -128,7 +131,8 @@ def run_one_epoch(fabric,
                   p_img,
                   mix_precision=False,
                   scheduler=None,
-                  clip_grad=1.0):
+                  clip_grad=1.0,
+                  epoch=0):
     """
     Optimize the policy. Return a dictionary of the loss and any other metrics.
     """
@@ -152,6 +156,7 @@ def run_one_epoch(fabric,
         optimizer.zero_grad()
         fabric.backward(loss)
 
+        wandb.log({"step_metrics/step_loss": loss.item(), "step_metrics/step": i, "step_metrics/epoch": epoch, "step_metrics/lr": optimizer.param_groups[0]["lr"]})
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip_grad)
 
         optimizer.step()

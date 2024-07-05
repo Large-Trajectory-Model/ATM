@@ -19,11 +19,11 @@ train_gpus: [0]
 
 # Training
 lr: 1e-4
-batch_size: 512
+batch_size: 256
 mix_precision: true
 num_workers: 8
 val_freq: 5
-save_freq: 10
+save_freq: 5
 clip_grad: 10.
 epochs: 1001
 seed: 0
@@ -42,8 +42,8 @@ depth: 8
 img_size: 128
 frame_stack: 1
 num_track_ts: 16
-num_track_ids: 16
-patch_size: 16
+num_track_ids: 32
+patch_size: 32
 track_patch_size: 4
 
 aug_prob: 0.9
@@ -65,6 +65,7 @@ scheduler_cfg:
     T_max: ${epochs}
 
 model_cfg:
+  load_path: /home/lawrence/ATM/results/track_transformer/0702_libero_track_transformer_libero-spatial_ep1001_0056/model_best.ckpt
   transformer_cfg:
     dim: ${dim}
     dim_head: ${dim_head}

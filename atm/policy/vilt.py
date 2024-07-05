@@ -255,7 +255,7 @@ class BCViLTPolicy(nn.Module):
         else:
             track_obs_to_pred = rearrange(track_obs, "b v t fs c h w -> (b v t) fs c h w")
 
-            n = int(np.sqrt(self.num_track_ids))
+            n = int(np.sqrt(self.num_track_ids // 2))
             grid_points = sample_double_grid(n, device=track_obs.device, dtype=track_obs.dtype)
             grid_sampled_track = repeat(grid_points, "n d -> b v t tl n d", b=b, v=v, t=t, tl=self.num_track_ts)
             grid_sampled_track = rearrange(grid_sampled_track, "b v t tl n d -> (b v t) tl n d")
