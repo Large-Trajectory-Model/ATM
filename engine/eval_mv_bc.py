@@ -145,7 +145,7 @@ def evaluate(fabric, cfg, checkpoint, video_save_dir, num_env_rollouts=20, rende
 
         all_results.append(result)
         del env
-    all_results = merge_results(all_results, compute_avg=False)
+    all_results = merge_results(all_results)
 
     del model
     del optimizer
