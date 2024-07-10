@@ -62,13 +62,27 @@ class CheckpointHandler(FileSystemEventHandler):
         # Log results to wandb
         video_files = glob.glob(os.path.join(video_save_dir, "*.mp4"))
         for video_file in video_files:
+            print("logging video:", video_file)
             self.wandb_run.log({f"eval/video_{os.path.basename(video_file)}": wandb.Video(video_file)})
 
-        # Log a summary of the evaluation 
+        # Log evaluation results
         self.wandb_run.log({
             "epoch": get_ckp_name(checkpoint_path),
             "success_env_avg": results.get("rollout/success_env_avg", 0),
+            "success_env0": results.get("rollout/success_env0", 0),
+            "success_env1": results.get("rollout/success_env1", 0),
+            "success_env2": results.get("rollout/success_env2", 0),
+            "success_env3": results.get("rollout/success_env3", 0),
+            "success_env4": results.get("rollout/success_env4", 0),
+            "success_env5": results.get("rollout/success_env5", 0),
+            "success_env6": results.get("rollout/success_env6", 0),
+            "success_env7": results.get("rollout/success_env7", 0),
+            "success_env8": results.get("rollout/success_env8", 0),
+            "success_env9": results.get("rollout/success_env9", 0),
+            "success_env10": results.get("rollout/success_env10", 0),
         })
+
+        print(f"Finished evaluating checkpoint: {checkpoint_path}")
 
 def main():
     parser = argparse.ArgumentParser()

@@ -1,0 +1,139 @@
+experiment: atm-policy_libero-spatial_demo10
+wandb:
+  project: atm_policy
+  name: 0709_atm-policy_libero-spatial_demo10_2321_seed1_None
+  group: atm-policy_libero-spatial_demo10
+train_gpus:
+- 0
+lr: 0.0005
+batch_size: 16
+mix_precision: false
+num_workers: 8
+val_freq: 5
+save_freq: 5
+clip_grad: 100.0
+epochs: 101
+seed: 1
+dry: false
+img_size: 128
+frame_stack: 10
+num_track_ts: 16
+num_track_ids: 18
+extra_state_keys:
+- joint_states
+- gripper_states
+aug_prob: 0.9
+train_dataset:
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate_demo
+- ./data/atm_libero//libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate_demo
+val_dataset:
+- ./data/atm_libero/libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate_demo
+val_num_demos: null
+env_cfg:
+  env_type: libero
+  render_gpu_ids: 0
+  vec_env_num: 10
+  horizon: 600
+  env_name: []
+  task_name: []
+  env_meta_fn: []
+optimizer_cfg:
+  type: optim.AdamW
+  params:
+    lr: 0.0005
+    weight_decay: 0.0001
+scheduler_cfg:
+  type: CosineAnnealingLR
+  params:
+    T_max: 101
+    eta_min: 0.0
+    last_epoch: -1
+model_name: BCViLTPolicy
+model_cfg:
+  load_path: null
+  obs_cfg:
+    obs_shapes:
+      rgb:
+      - 3
+      - 128
+      - 128
+      tracks:
+      - 16
+      - 18
+      - 2
+    img_mean:
+    - 0.0
+    - 0.0
+    - 0.0
+    img_std:
+    - 1.0
+    - 1.0
+    - 1.0
+    num_views: 2
+    extra_states:
+    - joint_states
+    - gripper_states
+    max_seq_len: 10
+  img_encoder_cfg:
+    network_name: PatchEncoder
+    patch_size:
+    - 8
+    - 8
+    embed_size: 128
+    no_patch_embed_bias: false
+  language_encoder_cfg:
+    network_name: MLPEncoder
+    input_size: 768
+    hidden_size: 128
+    num_layers: 1
+  extra_state_encoder_cfg:
+    extra_num_layers: 0
+    extra_hidden_size: 128
+  track_cfg:
+    track_fn: results/track_transformer/0702_libero_track_transformer_libero-spatial_ep1001_1521/
+    policy_track_patch_size: 16
+    use_zero_track: false
+  spatial_transformer_cfg:
+    num_layers: 7
+    num_heads: 8
+    head_output_size: 120
+    mlp_hidden_size: 256
+    dropout: 0.1
+    spatial_downsample: true
+    spatial_downsample_embed_size: 64
+    use_language_token: false
+  temporal_transformer_cfg:
+    num_layers: 4
+    num_heads: 6
+    head_output_size: 64
+    mlp_hidden_size: 256
+    dropout: 0.1
+    use_language_token: false
+  policy_head_cfg:
+    network_name: DeterministicHead
+    output_size:
+    - 7
+    hidden_size: 1024
+    num_layers: 2
+    loss_coef: 1.0
+    action_squash: false
+dataset_cfg:
+  img_size: 128
+  frame_stack: 10
+  num_track_ts: 16
+  num_track_ids: 18
+  track_obs_fs: 1
+  augment_track: false
+  extra_state_keys:
+  - joint_states
+  - gripper_states
+  cache_all: true
+  cache_image: true

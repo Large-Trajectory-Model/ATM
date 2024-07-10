@@ -17,6 +17,7 @@ def init_wandb(cfg):
         group=cfg.wandb.group,
     )
     OmegaConf.save(cfg, f"{wandb.run.dir}/config.yaml")
+    wandb.save(f"{wandb.run.dir}/config.yaml")
 
 def pretty_print_cfg(cfg):
     """

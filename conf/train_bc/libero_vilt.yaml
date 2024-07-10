@@ -69,7 +69,10 @@ model_cfg:
   obs_cfg:
     obs_shapes:
       rgb: [3, 128, 128]
-      tracks: [16, 32, 2]
+      tracks:
+        - 16
+        - ${num_track_ids}
+        - 2
     img_mean: [ 0., 0., 0. ]
     img_std: [ 1.0, 1.0, 1.0 ]
     num_views: 2

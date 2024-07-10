@@ -116,7 +116,9 @@ def main(cfg: DictConfig):
                 None if cfg.dry else wandb.log(val_metrics, step=epoch)
 
         if epoch % cfg.save_freq == 0:
-            model.save(f"{work_dir}/model_{epoch}.ckpt")
+            # model.save(f"{work_dir}/model_{epoch}.ckpt")
+            # Upload checkpoint to wandb instead
+            wandb.save(f"{work_dir}/model_{epoch}.ckpt")
 
             def vis_and_log(model, vis_dataloader, mode="train"):
                 eval_dict = visualize(model, vis_dataloader, mix_precision=cfg.mix_precision)

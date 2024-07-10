@@ -18,6 +18,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--suite", default="libero_goal", choices=["libero_spatial", "libero_object", "libero_goal", "libero_10"], 
                     help="The name of the desired suite, where libero_10 is the alias of libero_long.")
 parser.add_argument("-tt", "--track-transformer", default=None, help="Then path to the trained track transformer.")
+parser.add_argument("-s", "--seed", default=0, type=int, help="The seed for the training.")
+parser.add_argument("-p", "--points", default=32, type=int, help="The number of points to use in the track transformer.")
 args = parser.parse_args()
 
 # training configs
@@ -37,14 +39,16 @@ val_path_list = ["./data/atm_libero/libero_spatial/pick_up_the_black_bowl_betwee
 
 track_fn = args.track_transformer or DEFAULT_TRACK_TRANSFORMERS[suite_name]
 
-for seed in range(1):
-    commond = (f'python -m engine.train_bc --config-name={CONFIG_NAME} train_gpus="{train_gpu_ids}" '
-                f'experiment=atm-policy_{suite_name.replace("_", "-")}_demo{NUM_DEMOS} '
-                f'train_dataset="{train_path_list}" val_dataset="{val_path_list}" '
-                f'model_cfg.track_cfg.track_fn={track_fn} '
-                f'model_cfg.track_cfg.use_zero_track=False '
-                f'model_cfg.spatial_transformer_cfg.use_language_token=False '
-                f'model_cfg.temporal_transformer_cfg.use_language_token=False '
-                f'seed={seed} ')
+# for seed in range(3):
+seed = args.seed
+commond = (f'python -m engine.train_bc --config-name={CONFIG_NAME} train_gpus="{train_gpu_ids}" '
+            f'experiment=atm-policy_{suite_name.replace("_", "-")}_demo{NUM_DEMOS} '
+            f'num_track_ids={args.points} '
+            f'train_dataset="{train_path_list}" val_dataset="{val_path_list}" '
+            f'model_cfg.track_cfg.track_fn={track_fn} '
+            f'model_cfg.track_cfg.use_zero_track=False '
+            f'model_cfg.spatial_transformer_cfg.use_language_token=False '
+            f'model_cfg.temporal_transformer_cfg.use_language_token=False '
+            f'seed={seed} ')
 
-    os.system(commond)
+os.system(commond)
