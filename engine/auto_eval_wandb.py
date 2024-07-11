@@ -163,7 +163,7 @@ def main():
                     evaluated_checkpoints.add(artifact.name)
             
             # Wait for a while before checking again
-            time.sleep(1)  
+            time.sleep(5000)  
     except KeyboardInterrupt:
         print("Evaluation stopped by user.")
 
