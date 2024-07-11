@@ -20,6 +20,7 @@ parser.add_argument("--suite", default="libero_goal", choices=["libero_spatial",
 parser.add_argument("-tt", "--track-transformer", default=None, help="Then path to the trained track transformer.")
 parser.add_argument("-s", "--seed", default=0, type=int, help="The seed for the training.")
 parser.add_argument("-p", "--points", default=32, type=int, help="The number of points to use in the track transformer.")
+parser.add_argument("--save-frequency", default=5, type=int, help="The frequency to save the model.")
 args = parser.parse_args()
 
 # training configs
@@ -49,6 +50,7 @@ commond = (f'python -m engine.train_bc --config-name={CONFIG_NAME} train_gpus="{
             f'model_cfg.track_cfg.use_zero_track=False '
             f'model_cfg.spatial_transformer_cfg.use_language_token=False '
             f'model_cfg.temporal_transformer_cfg.use_language_token=False '
+            f'save_freq={args.save_frequency} '
             f'seed={seed} ')
 
 os.system(commond)

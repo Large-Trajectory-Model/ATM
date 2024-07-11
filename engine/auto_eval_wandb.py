@@ -20,6 +20,10 @@ class CheckpointEvaluator:
         self.evaluated_checkpoints = set()
 
     def evaluate_checkpoint(self, checkpoint_path):
+        # Ensure checkpoint_path is a string
+        if hasattr(checkpoint_path, 'name'):
+            checkpoint_path = checkpoint_path.name
+
         if checkpoint_path in self.evaluated_checkpoints:
             return
 
@@ -63,7 +67,6 @@ class CheckpointEvaluator:
 
         # Log evaluation results
         self.wandb_run.log({
-            "epoch": get_ckp_name(checkpoint_path),
             "success_env_avg": results.get("rollout/success_env_avg", 0),
             "success_env0": results.get("rollout/success_env0", 0),
             "success_env1": results.get("rollout/success_env1", 0),
@@ -76,19 +79,36 @@ class CheckpointEvaluator:
             "success_env8": results.get("rollout/success_env8", 0),
             "success_env9": results.get("rollout/success_env9", 0),
             "success_env10": results.get("rollout/success_env10", 0),
-        })
+        }, step=get_ckp_name(checkpoint_path))
 
         print(f"Finished evaluating checkpoint: {checkpoint_path}")
 
 def get_wandb_config(run):
-    # Fetch the config file from wandb
-    config_file = run.file("config.yaml").download(replace=True)
+    wandb_config = run.config
     
-    # Load the config using OmegaConf
-    cfg = OmegaConf.load(config_file)
+    # Convert wandb config to a plain dictionary
+    config_dict = dict(wandb_config)
+    
+    # Recursively convert any remaining wandb.Config objects to dictionaries
+    def convert_config(item):
+        if isinstance(item, dict):
+            return {k: convert_config(v) for k, v in item.items()}
+        elif isinstance(item, list):
+            return [convert_config(v) for v in item]
+        elif hasattr(item, '_items'):  # Check if it's a wandb.Config object
+            return convert_config(dict(item._items))
+        else:
+            return item
+    
+    config_dict = convert_config(config_dict)
+    
+    # Create OmegaConf object from the cleaned dictionary
+    cfg = OmegaConf.create(config_dict)
+
+    pretty_print_cfg(cfg)
     
     return cfg
-
+    
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint-dir", required=True, help="Directory to save downloaded checkpoints")
@@ -102,8 +122,6 @@ def main():
 
     # Get config from wandb
     cfg = get_wandb_config(run)
-
-    pretty_print_cfg(cfg)
 
     # Resume existing wandb run
     wandb_run = wandb.init(
@@ -128,20 +146,24 @@ def main():
     try:
         while True:
             # Query for new checkpoints
-            artifacts = run.logged_artifacts()
-            checkpoint_artifacts = [art for art in artifacts if art.type == "checkpoint"]
+            files = run.files()
+            checkpoint_artifacts = [f for f in files if f.name.endswith(".ckpt")]
             
             for artifact in checkpoint_artifacts:
                 if artifact.name not in evaluated_checkpoints:
                     print(f"New checkpoint found: {artifact.name}")
                     # Download the checkpoint
-                    checkpoint_path = artifact.download(root=args.checkpoint_dir)
+                    checkpoint_path = artifact.download(root=args.checkpoint_dir, replace=True)
+
+                    if isinstance(checkpoint_path, list):
+                        checkpoint_path = checkpoint_path[0]
+
                     # Evaluate the checkpoint
                     evaluator.evaluate_checkpoint(checkpoint_path)
                     evaluated_checkpoints.add(artifact.name)
             
             # Wait for a while before checking again
-            time.sleep(100)  
+            time.sleep(1)  
     except KeyboardInterrupt:
         print("Evaluation stopped by user.")
 
