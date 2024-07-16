@@ -118,6 +118,7 @@ def main(cfg: DictConfig):
         if epoch % cfg.save_freq == 0:
             model.save(f"{work_dir}/model_{epoch}.ckpt")
             # Upload checkpoint to wandb instead
+            print(f"Saving model {epoch} to wandb")
             wandb.save(f"{work_dir}/model_{epoch}.ckpt")
 
             def vis_and_log(model, vis_dataloader, mode="train"):

@@ -42,7 +42,7 @@ depth: 8
 img_size: 128
 frame_stack: 1
 num_track_ts: 16
-num_track_ids: 32
+num_track_ids: 8
 patch_size: 32
 track_patch_size: 4
 

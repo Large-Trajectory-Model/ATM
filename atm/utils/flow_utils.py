@@ -48,12 +48,18 @@ def sample_grid(n, device="cuda", dtype=torch.float32, left=(0.1, 0.1), right=(0
     points = torch.stack([u, v], dim=-1)
     return points
 
-
 def sample_double_grid(n, device="cuda", dtype=torch.float32,):
-    points1 = sample_grid(n, device, dtype, left=(0.05, 0.05), right=(0.85, 0.85))
-    points2 = sample_grid(n, device, dtype, left=(0.15, 0.15), right=(0.95, 0.95))
-    points = torch.cat([points1, points2], dim=0)
-    return points
+    if n >= 18:
+        points1 = sample_grid(n, device, dtype, left=(0.05, 0.05), right=(0.85, 0.85))
+        points2 = sample_grid(n, device, dtype, left=(0.15, 0.15), right=(0.95, 0.95))
+        points = torch.cat([points1, points2], dim=0)
+        return points
+    else:
+        # sample from the middle of the image frame
+        points1 = sample_grid(n, device, dtype, left=(0.3, 0.3), right=(0.7, 0.7))
+        points2 = sample_grid(n, device, dtype, left=(0.4, 0.4), right=(0.6, 0.6))
+        points = torch.cat([points1, points2], dim=0)
+        return points
 
 def sample_tracks_nearest_to_grids(tracks, vis, num_samples=16):  # Default set to 16
     """

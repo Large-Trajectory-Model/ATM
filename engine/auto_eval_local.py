@@ -23,11 +23,18 @@ class CheckpointHandler(FileSystemEventHandler):
         if not event.is_directory and event.src_path.endswith('.ckpt'):
             self.evaluate_checkpoint(event.src_path)
 
+    def evaluate_all_checkpoints(self):
+        print(glob.glob(os.path.join(self.checkpoint_dir, "*.ckpt")))
+        for checkpoint_path in glob.glob(os.path.join(self.checkpoint_dir, "*.ckpt")):
+            if "model_best" in checkpoint_path:
+                continue
+            self.evaluate_checkpoint(checkpoint_path)
+
     def evaluate_checkpoint(self, checkpoint_path):
         if checkpoint_path in self.evaluated_checkpoints:
             return
 
-        print(f"Evaluating new checkpoint: {checkpoint_path}")
+        print(f"Evaluating checkpoint: {checkpoint_path}")
         self.evaluated_checkpoints.add(checkpoint_path)
 
         # Update the checkpoint path in the config
@@ -110,6 +117,9 @@ def main():
 
     # Create checkpoint handler
     handler = CheckpointHandler(cfg, fabric, wandb_run, args.checkpoint_dir)
+
+    # Evaluate all existing checkpoints
+    handler.evaluate_all_checkpoints()
 
     # Set up directory observer
     observer = Observer()

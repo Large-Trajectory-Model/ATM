@@ -24,6 +24,10 @@ class CheckpointEvaluator:
         if hasattr(checkpoint_path, 'name'):
             checkpoint_path = checkpoint_path.name
 
+        # If is model_best, then skip
+        if "model_best" in checkpoint_path:
+            return
+
         if checkpoint_path in self.evaluated_checkpoints:
             return
 
@@ -67,19 +71,19 @@ class CheckpointEvaluator:
 
         # Log evaluation results
         self.wandb_run.log({
-            "success_env_avg": results.get("rollout/success_env_avg", 0),
-            "success_env0": results.get("rollout/success_env0", 0),
-            "success_env1": results.get("rollout/success_env1", 0),
-            "success_env2": results.get("rollout/success_env2", 0),
-            "success_env3": results.get("rollout/success_env3", 0),
-            "success_env4": results.get("rollout/success_env4", 0),
-            "success_env5": results.get("rollout/success_env5", 0),
-            "success_env6": results.get("rollout/success_env6", 0),
-            "success_env7": results.get("rollout/success_env7", 0),
-            "success_env8": results.get("rollout/success_env8", 0),
-            "success_env9": results.get("rollout/success_env9", 0),
-            "success_env10": results.get("rollout/success_env10", 0),
-        }, step=get_ckp_name(checkpoint_path))
+            "eval/epoch": get_ckp_name(checkpoint_path),
+            "eval/success_env_avg": results.get("rollout/success_env_avg", 0),
+            "eval/success_env0": results.get("rollout/success_env0", 0),
+            "eval/success_env1": results.get("rollout/success_env1", 0),
+            "eval/success_env2": results.get("rollout/success_env2", 0),
+            "eavl/success_env3": results.get("rollout/success_env3", 0),
+            "eval/success_env4": results.get("rollout/success_env4", 0),
+            "eval/success_env5": results.get("rollout/success_env5", 0),
+            "eval/success_env6": results.get("rollout/success_env6", 0),
+            "eval/success_env7": results.get("rollout/success_env7", 0),
+            "eval/success_env8": results.get("rollout/success_env8", 0),
+            "eval/success_env9": results.get("rollout/success_env9", 0),
+        })
 
         print(f"Finished evaluating checkpoint: {checkpoint_path}")
 
@@ -120,7 +124,6 @@ def main():
     project = "atm_policy"
     run = api.run(f"11485-26/{project}/{args.wandb_run_id}")
 
-    # Get config from wandb
     cfg = get_wandb_config(run)
 
     # Resume existing wandb run
