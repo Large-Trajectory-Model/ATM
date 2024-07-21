@@ -49,7 +49,7 @@ def sample_grid(n, device="cuda", dtype=torch.float32, left=(0.1, 0.1), right=(0
     return points
 
 def sample_double_grid(n, device="cuda", dtype=torch.float32,):
-    if n >= 18:
+    if n >= 4:
         points1 = sample_grid(n, device, dtype, left=(0.05, 0.05), right=(0.85, 0.85))
         points2 = sample_grid(n, device, dtype, left=(0.15, 0.15), right=(0.95, 0.95))
         points = torch.cat([points1, points2], dim=0)
