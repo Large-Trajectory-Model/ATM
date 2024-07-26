@@ -39,11 +39,17 @@ python -m scripts.download_libero_datasets
 and then preprocess them with [Cotracker](https://arxiv.org/abs/2307.07635):
 
 ```
-python -m scritps.preprocess_libero --suite libero_spatial
-python -m scritps.preprocess_libero --suite libero_object
-python -m scritps.preprocess_libero --suite libero_goal
-python -m scritps.preprocess_libero --suite libero_10
-python -m scritps.preprocess_libero --suite libero_90
+python -m scripts.preprocess_libero --suite libero_spatial
+python -m scripts.preprocess_libero --suite libero_object
+python -m scripts.preprocess_libero --suite libero_goal
+python -m scripts.preprocess_libero --suite libero_10
+python -m scripts.preprocess_libero --suite libero_90
+```
+
+After preprocessing, split the datasets into training and validation sets:
+
+```
+python -m scripts.split_libero_dataset
 ```
 
 ## Download Checkpoints
