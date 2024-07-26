@@ -168,8 +168,8 @@ def collect_states_from_demo(h5_file, image_save_dir, demos_group, demo_k, view_
             visualizer.visualize(torch.from_numpy(rgb)[None], pred_tracks, pred_vis, filename=f"{demo_k}_{view}")
 
         # [1, T, N, 2], normalize coordinates to [0, 1] for in-picture coordinates
-        pred_tracks[:, :, :, 0] /= H
-        pred_tracks[:, :, :, 1] /= W
+        pred_tracks[:, :, :, 0] /= W
+        pred_tracks[:, :, :, 1] /= H
 
         # hierarchically save arrays under the view name
         view_grp = root_grp.create_group(view) if view not in root_grp else root_grp[view]
